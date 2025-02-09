@@ -7,6 +7,3 @@ typedef struct job {
     struct job *next;
 } job_t;
 
-job_t* load_jobs(const char* filename);
-void free_jobs(job_t* head);
-#endif
