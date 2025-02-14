@@ -101,9 +101,50 @@ void sjf_scheduler(struct job *head) {
     free_jobs(head);
 }
 
+
+void rr_scheduler(struct job *head, int time_slice) {
+    printf("Execution trace with RR:\n");
+
+    struct job *queue = head;  // Job queue
+
+    while (queue) {
+        struct job *current = queue;
+        queue = queue->next;  // Move to the next job in the queue
+
+        if (current->length > time_slice) {
+            // Job runs for a time slice, then moves back to the end of the queue
+            printf("Job %d ran for : %d\n", current->id, time_slice);
+            current->length -= time_slice;
+
+            // Find the last job in the queue
+            struct job *temp = queue;
+            while (temp && temp->next) {
+                temp = temp->next;
+            }
+            
+            if (temp) {
+                temp->next = current;
+                current->next = NULL;
+            } else {
+                // If the queue is empty, this is the only job left
+                queue = current;
+                current->next = NULL;
+            }
+        } else {
+            // Job finishes execution
+            printf("Job %d ran for : %d\n", current->id, current->length);
+            free(current);  // Free the job after it's done
+        }
+    }
+
+    printf("End of execution with RR.\n");
+}
+
+
+
 int main(int argc, char *argv[]) {
-    if (argc != 4) {
-        fprintf(stderr, "Usage: %s <policy> <workload_file> 0\n", argv[0]);
+    if (argc < 4) {
+        fprintf(stderr, "Usage: %s <policy> <workload_file> [time_slice]\n", argv[0]);
         return EXIT_FAILURE;
     }
 
@@ -113,6 +154,19 @@ int main(int argc, char *argv[]) {
         fifo_scheduler(job_list);
     } else if (strcmp(argv[1], "SJF") == 0) {
         sjf_scheduler(job_list);
+    } else if (strcmp(argv[1], "RR") == 0) {
+        if (argc != 4) {
+            fprintf(stderr, "Round Robin requires a time slice argument.\n");
+            free_jobs(job_list);
+            return EXIT_FAILURE;
+        }
+        int time_slice = atoi(argv[3]);
+        if (time_slice <= 0) {
+            fprintf(stderr, "Invalid time slice value.\n");
+            free_jobs(job_list);
+            return EXIT_FAILURE;
+        }
+        rr_scheduler(job_list, time_slice);
     } else {
         fprintf(stderr, "Unknown scheduling policy: %s\n", argv[1]);
         free_jobs(job_list);
