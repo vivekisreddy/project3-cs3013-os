@@ -1,20 +1,7 @@
-Workload 1 created
-Workload 2 created
-Workload 3 created
-Workload 4 created
-Workload 5 created
 Execution trace with FIFO:
-Job 0 ran for: 3
-Job 1 ran for: 6
-Job 2 ran for: 9
-Job 3 ran for: 12
-Job 4 ran for: 15
+Job 0 ran for : 3
 End of execution with FIFO.
-Begin analyzing SJF:
+Begin analyzing FIFO:
 Job 0 -- Response time: 0 Turnaround: 3 Wait: 0
-Job 1 -- Response time: 3 Turnaround: 9 Wait: 3
-Job 2 -- Response time: 9 Turnaround: 18 Wait: 9
-Job 3 -- Response time: 18 Turnaround: 30 Wait: 18
-Job 4 -- Response time: 30 Turnaround: 45 Wait: 30
-Average -- Response: 12.00 Turnaround: 21.00 Wait: 12.00
-End analyzing SJF.
+Average -- Response: 0.00 Turnaround: 3.00 Wait: 0.00
+End analyzing FIFO.

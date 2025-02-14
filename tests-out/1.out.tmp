@@ -1,3 +1,9 @@
+
 Workload 1 created
 Workload 2 created
 Workload 3 created
+
+Execution trace with FIFO:
+Job 0 ran for : 3
+End of execution with FIFO.
+
