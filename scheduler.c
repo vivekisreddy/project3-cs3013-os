@@ -6,10 +6,12 @@
 struct job {
     int id;
     int length;
+    int response_time;
+    int turnaround_time;
+    int wait_time;
     struct job *next;
 };
 
-// Function to read jobs from the workload file into a linked list
 struct job* read_workload(const char* filename) {
     FILE *file = fopen(filename, "r");
     if (!file) {
@@ -38,7 +40,6 @@ struct job* read_workload(const char* filename) {
     return head;
 }
 
-// Function to free the job list
 void free_jobs(struct job *head) {
     struct job *current = head;
     while (current) {
@@ -48,31 +49,58 @@ void free_jobs(struct job *head) {
     }
 }
 
-// Function to execute jobs using FIFO scheduling
 void fifo_scheduler(struct job *head) {
     printf("Execution trace with FIFO:\n");
+
+    int time = 0;
     struct job *current = head;
+    float total_response = 0, total_turnaround = 0, total_wait = 0;
+    int count = 0;
+
     while (current) {
         printf("Job %d ran for : %d\n", current->id, current->length);
+
+        current->response_time = time;
+        current->turnaround_time = time + current->length;
+        current->wait_time = time;
+
+        total_response += current->response_time;
+        total_turnaround += current->turnaround_time;
+        total_wait += current->wait_time;
+        count++;
+
+        time += current->length;
         current = current->next;
     }
+
     printf("End of execution with FIFO.\n");
+    printf("Begin analyzing FIFO:\n");
+
+    current = head;
+    while (current) {
+        printf("Job %d -- Response time: %d Turnaround: %d Wait: %d\n",
+               current->id, current->response_time, current->turnaround_time, current->wait_time);
+        current = current->next;
+    }
+
+    printf("Average -- Response: %.2f Turnaround: %.2f Wait: %.2f\n",
+           total_response / count, total_turnaround / count, total_wait / count);
+    printf("End analyzing FIFO.\n");
+
     free_jobs(head);
 }
 
-// Function to execute jobs using SJF scheduling
 void sjf_scheduler(struct job *head) {
     printf("Execution trace with SJF:\n");
 
-    // Count jobs
     int count = 0;
     struct job *temp = head;
+    
     while (temp) {
         count++;
         temp = temp->next;
     }
 
-    // Copy jobs to an array for sorting
     struct job **job_array = (struct job**)malloc(count * sizeof(struct job*));
     temp = head;
     for (int i = 0; i < count; i++) {
@@ -80,7 +108,6 @@ void sjf_scheduler(struct job *head) {
         temp = temp->next;
     }
 
-    // Sort jobs by length (Shortest Job First)
     for (int i = 0; i < count - 1; i++) {
         for (int j = i + 1; j < count; j++) {
             if (job_array[i]->length > job_array[j]->length) {
@@ -91,55 +118,131 @@ void sjf_scheduler(struct job *head) {
         }
     }
 
-    // Execute jobs in sorted order
+    int time = 0;
+    float total_response = 0, total_turnaround = 0, total_wait = 0;
+
     for (int i = 0; i < count; i++) {
-        printf("Job %d ran for : %d\n", job_array[i]->id, job_array[i]->length);
+        struct job *current = job_array[i];
+        printf("Job %d ran for : %d\n", current->id, current->length);
+
+        current->response_time = time;
+        current->turnaround_time = time + current->length;
+        current->wait_time = time;
+
+        total_response += current->response_time;
+        total_turnaround += current->turnaround_time;
+        total_wait += current->wait_time;
+
+        time += current->length;
     }
+
     printf("End of execution with SJF.\n");
+    printf("Begin analyzing SJF:\n");
+
+    for (int i = 0; i < count; i++) {
+        printf("Job %d -- Response time: %d Turnaround: %d Wait: %d\n",
+               job_array[i]->id, job_array[i]->response_time, job_array[i]->turnaround_time, job_array[i]->wait_time);
+    }
+
+    printf("Average -- Response: %.2f Turnaround: %.2f Wait: %.2f\n",
+           total_response / count, total_turnaround / count, total_wait / count);
+    printf("End analyzing SJF.\n");
 
     free(job_array);
     free_jobs(head);
 }
 
-
 void rr_scheduler(struct job *head, int time_slice) {
     printf("Execution trace with RR:\n");
 
-    struct job *queue = head;  // Job queue
+    int time = 0;
+    struct job *queue = NULL, *tail = NULL, *current = head;
+    struct job **job_tracker; 
+    int job_count = 0;
+
+    struct job *temp = head;
+    while (temp) {
+        job_count++;
+        temp = temp->next;
+    }
+
+    job_tracker = (struct job**)malloc(job_count * sizeof(struct job*));
+    int *original_lengths = (int*)malloc(job_count * sizeof(int));  // Store original lengths
+    int index = 0;
+    
+    while (current) {
+        current->response_time = -1;  
+        job_tracker[index] = current; 
+        original_lengths[index] = current->length;  
+        index++;
+
+        struct job *next_job = current->next;
+        current->next = NULL;
+
+        if (!queue) {
+            queue = tail = current;
+        } else {
+            tail->next = current;
+            tail = current;
+        }
+        current = next_job;
+    }
+
+    float total_response = 0, total_turnaround = 0, total_wait = 0;
+    int completed_jobs = 0;
 
     while (queue) {
         struct job *current = queue;
-        queue = queue->next;  // Move to the next job in the queue
+        queue = queue->next;  
 
-        if (current->length > time_slice) {
-            // Job runs for a time slice, then moves back to the end of the queue
-            printf("Job %d ran for : %d\n", current->id, time_slice);
-            current->length -= time_slice;
+        if (current->response_time == -1) {
+            current->response_time = time;  
+        }
 
-            // Find the last job in the queue
-            struct job *temp = queue;
-            while (temp && temp->next) {
-                temp = temp->next;
-            }
+        int run_time = (current->length > time_slice) ? time_slice : current->length;
+        printf("Job %d ran for : %d\n", current->id, run_time);
+        current->length -= run_time;
+        time += run_time;
+
+        if (current->length > 0) {
             
-            if (temp) {
-                temp->next = current;
-                current->next = NULL;
+            if (!queue) {
+                queue = tail = current;
             } else {
-                // If the queue is empty, this is the only job left
-                queue = current;
-                current->next = NULL;
+                tail->next = current;
+                tail = current;
             }
+            tail->next = NULL;
         } else {
-            // Job finishes execution
-            printf("Job %d ran for : %d\n", current->id, current->length);
-            free(current);  // Free the job after it's done
+            
+            current->turnaround_time = time;
+            int original_length = original_lengths[current->id]; 
+            current->wait_time = current->turnaround_time - original_length;
+
+            total_response += current->response_time;
+            total_turnaround += current->turnaround_time;
+            total_wait += current->wait_time;
+            completed_jobs++;
         }
     }
 
     printf("End of execution with RR.\n");
-}
+    printf("Begin analyzing RR:\n");
 
+    for (int i = 0; i < job_count; i++) {
+        struct job *job = job_tracker[i];
+        printf("Job %d -- Response time: %d Turnaround: %d Wait: %d\n",
+               job->id, job->response_time, job->turnaround_time, job->wait_time);
+    }
+
+    printf("Average -- Response: %.2f Turnaround: %.2f Wait: %.2f\n",
+           total_response / job_count, total_turnaround / job_count, total_wait / job_count);
+    printf("End analyzing RR.\n");
+
+    free(job_tracker);
+    free(original_lengths); 
+    free_jobs(head);
+}
 
 
 int main(int argc, char *argv[]) {
@@ -155,22 +258,8 @@ int main(int argc, char *argv[]) {
     } else if (strcmp(argv[1], "SJF") == 0) {
         sjf_scheduler(job_list);
     } else if (strcmp(argv[1], "RR") == 0) {
-        if (argc != 4) {
-            fprintf(stderr, "Round Robin requires a time slice argument.\n");
-            free_jobs(job_list);
-            return EXIT_FAILURE;
-        }
         int time_slice = atoi(argv[3]);
-        if (time_slice <= 0) {
-            fprintf(stderr, "Invalid time slice value.\n");
-            free_jobs(job_list);
-            return EXIT_FAILURE;
-        }
         rr_scheduler(job_list, time_slice);
-    } else {
-        fprintf(stderr, "Unknown scheduling policy: %s\n", argv[1]);
-        free_jobs(job_list);
-        return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;
