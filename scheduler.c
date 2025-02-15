@@ -6,7 +6,8 @@
 struct job;
 
 // Function prototype for analyze_performance
-void analyze_performance(struct job *head);
+void analyze_performance(struct job *head, const char *policy);
+
 
 // Job struct representing each job in the workload
 struct job {
@@ -74,7 +75,7 @@ void fifo_scheduler(struct job *head) {
     }
 
     printf("End of execution with FIFO.\n");
-    analyze_performance(head);
+    analyze_performance(head, "FIFO");
 }
 
 // SJF Scheduling
@@ -84,13 +85,12 @@ void sjf_scheduler(struct job *head) {
     int count = 0;
     struct job *temp = head;
 
-    // Count the total number of jobs
+    // Count the number of jobs
     while (temp) {
         count++;
         temp = temp->next;
     }
 
-    // Allocate memory for the job array
     struct job **job_array = (struct job**)malloc(count * sizeof(struct job*));
     temp = head;
     for (int i = 0; i < count; i++) {
@@ -98,10 +98,10 @@ void sjf_scheduler(struct job *head) {
         temp = temp->next;
     }
 
-    // Sort jobs by their length (Shortest Job First)
+    // Sort jobs by their burst length (Shortest Job First)
     for (int i = 0; i < count - 1; i++) {
         for (int j = i + 1; j < count; j++) {
-            if (job_array[i]->length > job_array[j]->length || 
+            if (job_array[i]->length > job_array[j]->length ||
                 (job_array[i]->length == job_array[j]->length && job_array[i]->id > job_array[j]->id)) {
                 struct job *swap = job_array[i];
                 job_array[i] = job_array[j];
@@ -110,23 +110,27 @@ void sjf_scheduler(struct job *head) {
         }
     }
 
+    // Initialize the execution start time
     int time = 0;
     for (int i = 0; i < count; i++) {
         struct job *current = job_array[i];
-        printf("Job %d ran for: %d\n", current->id, current->length);
-        current->response_time = time;  // Response time is when the job starts
-        current->turnaround_time = time + current->length;  // Turnaround time is when the job ends
-        current->wait_time = time;  // Wait time is when it starts (assuming no arrival times)
-        time += current->length;
+
+        // Initialize times
+        current->response_time = time;  // Response time is the time the job starts executing
+        current->turnaround_time = time + current->length;  // Turnaround time is when the job finishes
+        current->wait_time = current->turnaround_time - current->length;  // Wait time
+
+        printf("Job %d ran for: %d\n", current->id, current->length);  // Print execution trace
+
+        time += current->length;  // Update the time after the job finishes
     }
 
     printf("End of execution with SJF.\n");
-
-    // After executing jobs, analyze the performance (response time, turnaround time, wait time, averages)
-    analyze_performance(head);
+    analyze_performance(head, "SJF");  // Pass the head of the sorted jobs
 
     free(job_array);
 }
+
 
 // RR Scheduling
 void rr_scheduler(struct job *head, int time_slice) {
@@ -144,11 +148,11 @@ void rr_scheduler(struct job *head, int time_slice) {
     }
 
     job_tracker = (struct job**)malloc(job_count * sizeof(struct job*));
-    int *original_lengths = (int*)malloc(job_count * sizeof(int));  // Store original lengths
+    int *original_lengths = (int*)malloc(job_count * sizeof(int));  
     int index = 0;
 
     while (current) {
-        current->response_time = -1;  // Default to -1 before being assigned a response time
+        current->response_time = -1;
         job_tracker[index] = current;
         original_lengths[index] = current->length;
         index++;
@@ -165,13 +169,12 @@ void rr_scheduler(struct job *head, int time_slice) {
         current = next_job;
     }
 
-    // Process the queue using RR scheduling
     while (queue) {
         struct job *current = queue;
         queue = queue->next;
 
         if (current->response_time == -1) {
-            current->response_time = time;  // Set response time for first execution
+            current->response_time = time;
         }
 
         int run_time = (current->length > time_slice) ? time_slice : current->length;
@@ -196,45 +199,48 @@ void rr_scheduler(struct job *head, int time_slice) {
     }
 
     printf("End of execution with RR.\n");
-    analyze_performance(head);
+    analyze_performance(head, "RR");
 
     free(job_tracker);
     free(original_lengths);
 }
 
 // Function to analyze the performance metrics for all jobs
-void analyze_performance(struct job *head) {
-    // Begin analyzing SJF
-    printf("Begin analyzing SJF:\n");
+void analyze_performance(struct job *head, const char *policy) {
+    printf("Begin analyzing %s:\n", policy);
 
-    // Loop through the jobs to display the calculated performance metrics
-    struct job *current = head;
-    while (current) {
-        printf("Job %d -- Response time: %d Turnaround: %d Wait: %d\n", 
-            current->id, current->response_time, current->turnaround_time, current->wait_time);
-        current = current->next;
-    }
-
-    // Calculate and print average metrics
-    float total_response_time = 0, total_turnaround_time = 0, total_wait_time = 0;
+    double total_response_time = 0, total_turnaround_time = 0, total_wait_time = 0;
     int job_count = 0;
-    current = head;
-    while (current) {
-        total_response_time += current->response_time;
-        total_turnaround_time += current->turnaround_time;
-        total_wait_time += current->wait_time;
+    struct job *current = head;
+
+    while (current != NULL) {
+        double response_time = current->response_time;
+        double turnaround_time = current->turnaround_time;
+        double wait_time = current->wait_time;
+
+        total_response_time += response_time;
+        total_turnaround_time += turnaround_time;
+        total_wait_time += wait_time;
+
+        // Print the job performance with proper formatting
+        printf("Job %d -- Response time: %.0f  Turnaround: %.0f  Wait: %.0f\n",
+               current->id, response_time, turnaround_time, wait_time);
+
         job_count++;
         current = current->next;
     }
 
-    printf("Average -- Response: %.2f Turnaround: %.2f Wait: %.2f\n", 
-           total_response_time / job_count, 
-           total_turnaround_time / job_count, 
-           total_wait_time / job_count);
+    double avg_response_time = total_response_time / job_count;
+    double avg_turnaround_time = total_turnaround_time / job_count;
+    double avg_wait_time = total_wait_time / job_count;
 
-    // End analyzing SJF
-    printf("End analyzing SJF.\n");
+    // Print the averages with proper formatting
+    printf("Average -- Response: %.2f  Turnaround: %.2f  Wait: %.2f\n",
+           avg_response_time, avg_turnaround_time, avg_wait_time);
+
+    printf("End analyzing %s.\n", policy);
 }
+
 
 int main(int argc, char *argv[]) {
     if (argc < 4) {

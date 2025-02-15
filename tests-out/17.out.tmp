@@ -1,0 +1,18 @@
+Job 10 ran for: 1
+Job 11 ran for: 5
+Job 13 ran for: 5
+Job 14 ran for: 2
+Job 2 ran for: 5
+Job 4 ran for: 5
+Job 13 ran for: 5
+Job 4 ran for: 3
+Job 13 ran for: 3
+End of execution with RR.
+Begin analyzing RR:
+Job 0 -- Response time: 0  Turnaround: 1  Wait: 0
+Job 1 -- Response time: 1  Turnaround: 6  Wait: 1
+Job 2 -- Response time: 6  Turnaround: 92  Wait: 77
+Job 4 -- Response time: 14  Turnaround: 105  Wait: 87
+Job 13 -- Response time: 49  Turnaround: 108  Wait: 90
+Average -- Response: 14.00  Turnaround: 62.40  Wait: 51.00
+End analyzing RR.
