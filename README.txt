@@ -2,7 +2,11 @@ Assignment 3
 Vivek Reddy Kasireddy & Jahnavi Prudhivi
 
 Project Overview
-This project implements a job scheduling simulator using three different scheduling policies: FIFO (First In First Out), SJF (Shortest Job First), and RR (Round Robin). The project reads a list of jobs from various workload files, simulates job execution under these policies, and calculates key performance metrics for each job, such as response time, turnaround time, and wait time. The performance of each policy is analyzed and averaged across all jobs.
+This project implements a job scheduling simulator using three different scheduling policies: 
+FIFO (First In First Out), SJF (Shortest Job First), and RR (Round Robin). The project reads a 
+list of jobs from various workload files, simulates job execution under these policies, and 
+calculates key performance metrics for each job, such as response time, turnaround time, and wait time. 
+The performance of each policy is analyzed and averaged across all jobs.
 
 Data Structures Used
 The core data structure used for this project is a linked list of struct job. Each job contains the following fields:
@@ -14,20 +18,44 @@ turnaround_time: The total time the job takes from its arrival to completion.
 wait_time: The time the job spends waiting in the queue before execution.
 next: A pointer to the next job in the linked list.
 Algorithm for Scheduling Policies
+
 FIFO Scheduling (First In First Out):
+The jobs are executed in the order they are read from the input file. Each job runs to completion 
+before the next job begins.
+The response_time is set as the current time when a job starts, turnaround_time is computed as the 
+time the job finishes, and wait_time is calculated as the time the job has been waiting in the queue.
 
-The jobs are executed in the order they are read from the input file. Each job runs to completion before the next job begins.
-The response_time is set as the current time when a job starts, turnaround_time is computed as the time the job finishes, and wait_time is calculated as the time the job has been waiting in the queue.
 SJF Scheduling (Shortest Job First):
-
-Jobs are sorted by their burst time (ascending order). If two jobs have the same burst time, they are ordered by their job ID.
+Jobs are sorted by their burst time (ascending order). If two jobs have the same burst time, they are 
+ordered by their job ID.
 The response_time, turnaround_time, and wait_time are then calculated for each job in the sorted list.
-RR Scheduling (Round Robin):
 
-Jobs are processed in a cyclic manner, with each job receiving a fixed "time slice" to run. If a job is not completed within its time slice, it is re-added to the queue with its remaining burst time.
+RR Scheduling (Round Robin):
+Jobs are processed in a cyclic manner, with each job receiving a fixed "time slice" to run. If a job is 
+not completed within its time slice, it is re-added to the queue with its remaining burst time.
 The response_time, turnaround_time, and wait_time are updated as the jobs are processed.
+
+Compilation & Running the Program
+
+To compile the program, use:
+
+make 
+
+To run the scheduler with a workload file, use this format for example:
+
+./scheduler FIFO tests/2.in 0 
+
+Running Tests
+To test the implementation, run the following command:
+
+bash run_tests.sh -t 1 - for  running the first test and so on just repalce the last number to run other tests
+
+This script will execute various test cases to ensure the correctness of FIFO, SJF, and RR scheduling policies.
+
 Workload Files
-The project uses five different workload files, each containing a set of job burst times. These files provide input to the job scheduling simulator and allow for testing under different job conditions. Below are the contents and a brief explanation of each workload file:
+The project uses five different workload files, each containing a set of job burst times. These files 
+provide input to the job scheduling simulator and allow for testing under different job conditions. 
+Below are the contents and a brief explanation of each workload file:
 
 workload1.in:
 3
