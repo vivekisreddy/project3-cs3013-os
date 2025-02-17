@@ -59,41 +59,46 @@ Below are the contents and a brief explanation of each workload file:
 
 workload1.in:
 3
-6
-9
-12
-15
+3
+3
+3
+3
+
 This workload file contains five jobs with burst times: 3, 6, 9, 12, and 15 units. It represents a scenario with a moderate spread of burst times.
 workload2.in:
+10
 1
 2
 3
-10
-10
+4
+
 This workload file contains five jobs with burst times: 1, 2, 3, 10, and 10 units. This scenario tests the system's handling of small burst jobs as well as jobs with equal burst times (10).
 workload3.in:
-2
-3
 5
-7
-8
+5
+5
+5
+5
+
 This workload file contains five jobs with burst times: 2, 3, 5, 7, and 8 units. It represents a scenario where jobs have varied but relatively small burst times.
 workload4.in:
 50
-70
-120
+20
+10
+30
+40
+
 This workload file contains three jobs with burst times: 50, 70, and 120 units. It represents a scenario with larger, more time-consuming jobs.
 workload5.in:
-1
-10
 3
-This workload file contains three jobs with burst times: 1, 10, and 3 units. It represents a scenario with a mix of very small and large jobs.
-Test Failures and Issues
-Test 15 (SJF Scheduling)
-In Test 15, the SJF (Shortest Job First) policy failed to provide the expected output because the order of execution and the way the output was printed were not correctly handled. After sorting the jobs by their burst time, the jobs were executed in the wrong order, causing inaccurate calculation of the response_time, turnaround_time, and wait_time. This issue arose from improper handling of the sorted array and linked list during the execution trace and performance analysis.
+6
+4
 
+This workload file contains three jobs with burst times: 1, 10, and 3 units. It represents a scenario with a mix of very small and large jobs.
+
+Test Failures and Issues
 Test 17 (RR Scheduling)
-In Test 17, the RR (Round Robin) policy encountered a similar issue. The jobs were processed in the correct order, but the output was printed in a confusing manner due to the dynamic modification of the queue while jobs were executed. As jobs were re-added to the queue, the output did not match the expected execution trace, leading to incorrect response_time and turnaround_time for some jobs. The performance metrics were calculated based on the updated queue rather than the original job order, which caused discrepancies in the analysis output.
+In Test 17, the RR (Round Robin) policy encountered an issue. The jobs were processed in the correct order, but the output was printed in a confusing manner due to the dynamic modification of the queue while jobs were executed. As jobs were re-added to the queue, the output did not match the expected execution trace, leading to incorrect response_time and turnaround_time for some jobs. The performance metrics were calculated based on the updated queue rather than the original job order, which caused discrepancies in the analysis output.
 
 Key Lessons Learned
 Correct Handling of Linked List and Sorted Array:

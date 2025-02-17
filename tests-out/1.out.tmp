@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-Workload 1 created
-Workload 2 created
-Workload 3 created
-=======
 Execution trace with FIFO:
-Job 0 ran for : 3
+Job 0 ran for: 3
 End of execution with FIFO.
->>>>>>> 501a4846529e4a3460f5860acb47877c7ba492cf

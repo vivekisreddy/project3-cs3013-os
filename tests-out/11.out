@@ -385,18 +385,20 @@ Job 75 ran for: 2
 Job 91 ran for: 1
 End of execution with RR.
 Begin analyzing RR:
-Job 0 -- Response time: 0 Turnaround: 692 Wait: 682
-Job 1 -- Response time: 3 Turnaround: 946 Wait: 928
-Job 4 -- Response time: 10 Turnaround: 1018 Wait: 998
-Job 16 -- Response time: 44 Turnaround: 1020 Wait: 1000
-Job 20 -- Response time: 56 Turnaround: 1022 Wait: 1002
-Job 36 -- Response time: 103 Turnaround: 1024 Wait: 1004
-Job 50 -- Response time: 142 Turnaround: 1026 Wait: 1006
-Job 51 -- Response time: 145 Turnaround: 1027 Wait: 1008
-Job 53 -- Response time: 151 Turnaround: 1028 Wait: 1009
-Job 69 -- Response time: 194 Turnaround: 1029 Wait: 1010
-Job 70 -- Response time: 197 Turnaround: 1030 Wait: 1011
-Job 75 -- Response time: 212 Turnaround: 1032 Wait: 1012
-Job 91 -- Response time: 259 Turnaround: 1033 Wait: 1014
-Average -- Response: 116.62 Turnaround: 994.38 Wait: 975.69
+Begin analyzing RR:
+Job 0 -- Response time: 0  Turnaround: 692  Wait: 682
+Job 1 -- Response time: 3  Turnaround: 946  Wait: 928
+Job 4 -- Response time: 10  Turnaround: 1018  Wait: 998
+Job 16 -- Response time: 44  Turnaround: 1020  Wait: 1000
+Job 20 -- Response time: 56  Turnaround: 1022  Wait: 1002
+Job 36 -- Response time: 103  Turnaround: 1024  Wait: 1004
+Job 50 -- Response time: 142  Turnaround: 1026  Wait: 1006
+Job 51 -- Response time: 145  Turnaround: 1027  Wait: 1008
+Job 53 -- Response time: 151  Turnaround: 1028  Wait: 1009
+Job 69 -- Response time: 194  Turnaround: 1029  Wait: 1010
+Job 70 -- Response time: 197  Turnaround: 1030  Wait: 1011
+Job 75 -- Response time: 212  Turnaround: 1032  Wait: 1012
+Job 91 -- Response time: 259  Turnaround: 1033  Wait: 1014
+Average -- Response: 116.62  Turnaround: 994.38  Wait: 975.69
+End analyzing RR.
 End analyzing RR.
